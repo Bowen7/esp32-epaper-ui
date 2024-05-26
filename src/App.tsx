@@ -1,23 +1,30 @@
-import CountBtn from '@/components/CountBtn';
-import ReactSVG from '@/assets/react.svg';
-import { Badge } from '@/components/ui/badge';
+import { useState } from "react";
+import clsx from "clsx";
+import { ModeToggle } from "@/components/mode-toggle";
+import { SettingToggle } from "./components/setting-toggle";
+import { UploadFile } from "./components/upload-file";
+import { Editor } from "./components/editor";
 
 function App() {
-  return (
-    <main className="flex flex-col items-center justify-center h-screen">
-      <div className="flex flex-col items-center gap-y-4">
-        <div className="inline-flex items-center gap-x-4">
-          <img src={ReactSVG} alt="React Logo" className="w-32" />
-          <span className="text-6xl">+</span>
-          <img src={'/vite.svg'} alt="Vite Logo" className="w-32" />
-        </div>
-        <a href="https://ui.shadcn.com" rel="noopener noreferrer nofollow" target="_blank">
-          <Badge variant="outline">shadcn/ui</Badge>
-        </a>
-        <CountBtn />
-      </div>
-    </main>
-  );
+	const [image, setImage] = useState<File | null>(null);
+	return (
+		<main className="h-screen flex flex-col items-center">
+			<header className="h-14 w-full border-b border-border/40 flex items-center px-8 gap-x-4 justify-end">
+				<SettingToggle />
+				<ModeToggle />
+			</header>
+			<div
+				className={clsx("flex flex-1 gap-y-4 overflow-auto max-w-7xl", {
+					"items-center": !image,
+					"justify-center": !image,
+					"pb-28": !image,
+				})}
+			>
+				{!image && <UploadFile onFileChange={setImage} />}
+				{image && <Editor image={image} />}
+			</div>
+		</main>
+	);
 }
 
 export default App;
