@@ -1,26 +1,28 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { CardContent, Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 type Props = {
-	onFileChange: (file: File) => void;
+	onChange: (url: string) => void;
 };
 
-export const UploadFile = ({ onFileChange }: Props) => {
+export const UploadFile = ({ onChange }: Props) => {
+	const [url, setUrl] = useState("");
 	const onDrop = useCallback(
 		async (acceptedFiles: File[]) => {
 			if (acceptedFiles.length > 0) {
 				const image = acceptedFiles[0];
-				onFileChange(image);
+				const url = URL.createObjectURL(image);
+				onChange(url);
 			}
 		},
-		[onFileChange],
+		[onChange],
 	);
 
 	const { getRootProps, getInputProps } = useDropzone({ onDrop });
-	const { style, ...inputProps } = getInputProps();
 	return (
 		<Card>
 			<CardContent className="p-6 space-y-4">
@@ -33,19 +35,25 @@ export const UploadFile = ({ onFileChange }: Props) => {
 						Drag and drop a file or click to browse
 					</span>
 					<span className="text-xs text-gray-500">image</span>
-				</div>
-				<div className="space-y-2 text-sm">
-					<Label className="text-sm font-medium" htmlFor="file">
-						File
-					</Label>
 					<Input
 						accept="image/*"
 						id="file"
 						placeholder="File"
 						type="file"
 						className="leading-7"
-						{...inputProps}
+						{...getInputProps()}
 					/>
+				</div>
+				<div className="space-y-2 text-sm">
+					<Label className="text-sm font-medium" htmlFor="file">
+						Or input an image address
+					</Label>
+					<Input value={url} onChange={(e) => setUrl(e.target.value)} />
+					<div className="text-right !mt-4">
+						<Button onClick={() => onChange(url)} disabled={!url}>
+							Enter
+						</Button>
+					</div>
 				</div>
 			</CardContent>
 		</Card>

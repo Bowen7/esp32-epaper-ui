@@ -6,7 +6,7 @@ import { UploadFile } from "./components/upload-file";
 import { Editor } from "./components/editor";
 
 function App() {
-	const [image, setImage] = useState<File | null>(null);
+	const [url, setUrl] = useState("");
 	return (
 		<main className="h-screen flex flex-col items-center">
 			<header className="h-14 w-full border-b border-border/40 flex items-center px-8 gap-x-4 justify-end">
@@ -15,13 +15,13 @@ function App() {
 			</header>
 			<div
 				className={clsx("flex flex-1 gap-y-4 overflow-auto max-w-7xl", {
-					"items-center": !image,
-					"justify-center": !image,
-					"pb-28": !image,
+					"items-center": !url,
+					"justify-center": !url,
+					"pb-28": !url,
 				})}
 			>
-				{!image && <UploadFile onFileChange={setImage} />}
-				{image && <Editor image={image} />}
+				{!url && <UploadFile onChange={setUrl} />}
+				{url && <Editor url={url} />}
 			</div>
 		</main>
 	);

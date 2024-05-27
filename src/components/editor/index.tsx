@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { uploadImage } from "@/lib/upload";
 
 type Props = {
-	image: File;
+	url: string;
 };
 const getSize = (device: Device, direction: number): [number, number] => {
 	const { width, height } = device;
@@ -21,7 +21,7 @@ const getSize = (device: Device, direction: number): [number, number] => {
 };
 
 export const Editor = (props: Props) => {
-	const { image } = props;
+	const { url } = props;
 	const [imageSize, setImageSize] = useState([0, 0]);
 	const [transitUrl, setTransitUrl] = useState("");
 	const sourceCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -35,8 +35,6 @@ export const Editor = (props: Props) => {
 	const { direction, deviceIP } = setting;
 	const device = devices[Number.parseInt(setting.device)];
 	const [width, height] = getSize(device, Number.parseInt(direction));
-
-	const url = useMemo(() => URL.createObjectURL(image), [image]);
 
 	const onUpload = () => {
 		uploadImage(
