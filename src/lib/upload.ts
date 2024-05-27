@@ -55,10 +55,16 @@ function byteToStr(v: number) {
 function wordToStr(v: number) {
 	return byteToStr(v & 0xff) + byteToStr((v >> 8) & 0xff);
 }
+
+const getPos = (x: number, y: number, width: number) => {
+	return y * width + x;
+};
+
 export function uploadImage(
 	canvas: HTMLCanvasElement,
 	deviceId: number,
 	deviceIP: string,
+	direction = 0,
 ) {
 	let pxInd = 0;
 	let stInd = 0;
@@ -134,14 +140,54 @@ export function uploadImage(
 	const width = canvas.width;
 	const height = canvas.height;
 	const imageData = canvas.getContext("2d")!.getImageData(0, 0, width, height);
-	const a: number[] = new Array(width * height);
+	const a: number[] = new Array(width * height).fill(0);
 	let i = 0;
-	for (let y = 0; y < height; y++)
-		for (let x = 0; x < width; x++, i++) {
-			if (deviceId === 25 || deviceId === 37)
-				a[i] = getVal_7color(imageData, i << 2);
-			else a[i] = getVal(imageData, i << 2);
-		}
+	switch (direction) {
+		case 90:
+			for (let x = width - 1; x >= 0; x--) {
+				for (let y = 0; y < height; y++, i++) {
+					if (deviceId === 25 || deviceId === 37) {
+						a[i] = getVal_7color(imageData, getPos(x, y, width) << 2);
+					} else {
+						a[i] = getVal(imageData, getPos(x, y, width) << 2);
+					}
+				}
+			}
+			break;
+		case 180:
+			for (let y = height - 1; y >= 0; y--) {
+				for (let x = width - 1; x >= 0; x--, i++) {
+					if (deviceId === 25 || deviceId === 37) {
+						a[i] = getVal_7color(imageData, getPos(x, y, width) << 2);
+					} else {
+						a[i] = getVal(imageData, getPos(x, y, width) << 2);
+					}
+				}
+			}
+			break;
+		case 270:
+			for (let x = 0; x < width; x++) {
+				for (let y = height - 1; y >= 0; y--, i++) {
+					if (deviceId === 25 || deviceId === 37) {
+						a[i] = getVal_7color(imageData, getPos(x, y, width) << 2);
+					} else {
+						a[i] = getVal(imageData, getPos(x, y, width) << 2);
+					}
+				}
+			}
+			break;
+		default:
+			for (let y = 0; y < height; y++) {
+				for (let x = 0; x < width; x++, i++) {
+					if (deviceId === 25 || deviceId === 37) {
+						a[i] = getVal_7color(imageData, i << 2);
+					} else {
+						a[i] = getVal(imageData, i << 2);
+					}
+				}
+			}
+			break;
+	}
 	xhReq = new XMLHttpRequest();
 	if (deviceId === 3 || deviceId === 39 || deviceId === 43) {
 		xhReq.onload = xhReq.onerror = () => {

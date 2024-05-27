@@ -39,7 +39,12 @@ export const Editor = (props: Props) => {
 	const url = useMemo(() => URL.createObjectURL(image), [image]);
 
 	const onUpload = () => {
-		uploadImage(targetCanvasRef.current!, Number(device.id), deviceIP);
+		uploadImage(
+			targetCanvasRef.current!,
+			Number(device.id),
+			deviceIP,
+			Number(direction),
+		);
 	};
 
 	useEffect(() => {
@@ -59,7 +64,6 @@ export const Editor = (props: Props) => {
 		img.src = url;
 		img.onload = () => {
 			context.drawImage(img, 0, 0, imageSize[0], imageSize[1]);
-			// processImage(canvas, transitCanvasRef.current!, device);
 			const transitContent = transitCanvasRef.current!.getContext("2d");
 			transitContent!.drawImage(
 				img,
@@ -70,7 +74,7 @@ export const Editor = (props: Props) => {
 			);
 			setTransitUrl(transitCanvasRef.current!.toDataURL());
 		};
-	}, [imageSize, url, device]);
+	}, [imageSize, url, width]);
 
 	useEffect(() => {
 		if (!transitUrl) {
@@ -84,19 +88,9 @@ export const Editor = (props: Props) => {
 		img.src = transitUrl;
 		img.onload = () => {
 			context.clearRect(0, 0, width, height);
-			// context.translate(width / 2, height / 2);
-			// context.rotate((90 * Math.PI) / 180.0);
-			// context.drawImage(
-			// 	img,
-			// 	0,
-			// 	0,
-			// 	width,
-			// 	(width / imageSize[0]) * imageSize[1],
-			// );
-			// context.restore();
 			processImage(transitCanvasRef.current!, targetCanvasRef.current!, device);
 		};
-	}, [width, height, transitUrl, imageSize]);
+	}, [width, height, transitUrl, device]);
 
 	return (
 		<div className="">
