@@ -210,7 +210,7 @@ const dither = (
 	return out;
 };
 
-export const processImage = (
+export const ditherImage = (
 	sourceCanvas: HTMLCanvasElement,
 	transitCanvas: HTMLCanvasElement,
 	device: Device,

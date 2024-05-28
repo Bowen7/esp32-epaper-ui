@@ -1,11 +1,15 @@
 import { useState } from "react";
 import clsx from "clsx";
 import { ModeToggle } from "@/components/mode-toggle";
+import { Toaster } from "./components/ui/toaster";
 import { SettingToggle } from "./components/setting-toggle";
 import { UploadFile } from "./components/upload-file";
 import { Editor } from "./components/editor";
 
 function App() {
+	// const [url, setUrl] = useState(
+	// 	"https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f454.svg",
+	// );
 	const [url, setUrl] = useState("");
 	return (
 		<main className="h-screen flex flex-col items-center">
@@ -14,15 +18,19 @@ function App() {
 				<ModeToggle />
 			</header>
 			<div
-				className={clsx("flex flex-1 gap-y-4 overflow-auto max-w-7xl", {
-					"items-center": !url,
-					"justify-center": !url,
-					"pb-28": !url,
-				})}
+				className={clsx(
+					"flex flex-1 gap-y-4 overflow-auto max-w-screen-xl w-8/12",
+					{
+						"items-center": !url,
+						"justify-center": !url,
+						"pb-28": !url,
+					},
+				)}
 			>
 				{!url && <UploadFile onChange={setUrl} />}
-				{url && <Editor url={url} />}
+				{url && <Editor url={url} onBack={() => setUrl("")} />}
 			</div>
+			<Toaster />
 		</main>
 	);
 }
