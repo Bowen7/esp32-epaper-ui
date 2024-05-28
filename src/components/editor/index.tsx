@@ -7,6 +7,11 @@ import { devices, type Device } from "@/lib/config";
 import { ditherImage } from "@/lib/dither";
 import { Button } from "@/components/ui/button";
 import { uploadImage } from "@/lib/upload";
+import {
+	defaultImageOptions,
+	calcImageRect,
+	type ImageOptions,
+} from "@/lib/image";
 
 type Props = {
 	url: string;
@@ -23,9 +28,15 @@ const getSize = (device: Device, direction: number): [number, number] => {
 	}
 };
 
+const options: ImageOptions = {
+	size: "cover",
+	verticalAlign: "center",
+	horizontalAlign: "center",
+};
+
 export const Editor = (props: Props) => {
 	const { url, onBack } = props;
-	const [imageSize, setImageSize] = useState([0, 0]);
+	const [imageSize, setImageSize] = useState<[number, number]>([0, 0]);
 	const [transitUrl, setTransitUrl] = useState("");
 	const [sourceContainerScale, setSourceContainerScale] = useState(1);
 	const [targetContainerScale, setTargetContainerScale] = useState(1);
@@ -91,17 +102,14 @@ export const Editor = (props: Props) => {
 		img.src = url;
 		img.onload = () => {
 			context.drawImage(img, 0, 0, imageSize[0], imageSize[1]);
-			const transitContent = transitCanvasRef.current!.getContext("2d");
-			transitContent!.drawImage(
-				img,
-				0,
-				0,
-				width,
-				(width / imageSize[0]) * imageSize[1],
-			);
+			const transitContext = transitCanvasRef.current!.getContext("2d");
+			const rect = calcImageRect(imageSize, [width, height], options);
+			console.log(imageSize, [width, height], rect);
+			transitContext!.clearRect(0, 0, width, height);
+			transitContext!.drawImage(img, rect.x, rect.y, rect.width, rect.height);
 			setTransitUrl(transitCanvasRef.current!.toDataURL());
 		};
-	}, [imageSize, url, width]);
+	}, [imageSize, url, width, height]);
 
 	useEffect(() => {
 		if (!transitUrl) {
@@ -118,7 +126,7 @@ export const Editor = (props: Props) => {
 	}, [width, height, transitUrl, device]);
 
 	return (
-		<div className="w-full">
+		<div className="w-full px-8">
 			<div className="grid grid-cols-2 gap-4 overflow-hidden mt-4 mb-2">
 				<div className="text-lg font-semibold">Original Image</div>
 				<div className="text-lg font-semibold">Processed Image</div>

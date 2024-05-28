@@ -19,7 +19,7 @@ function App() {
 			</header>
 			<div
 				className={clsx(
-					"flex flex-1 gap-y-4 overflow-auto max-w-screen-xl w-8/12",
+					"flex flex-1 gap-y-4 overflow-auto max-w-screen-xl w-full",
 					{
 						"items-center": !url,
 						"justify-center": !url,
