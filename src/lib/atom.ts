@@ -1,4 +1,7 @@
+import { createStore } from "jotai";
 import { atomWithStorage } from "jotai/utils";
+
+export const store = createStore();
 
 export const SETTING_KEY = "setting-key";
 export const IMAGE_OPTIONS_KEY = "image-options-key";
