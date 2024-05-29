@@ -115,6 +115,3 @@ export const devices: Device[] = [
 	{ id: "47", name: "2.9bV4", width: 128, height: 296, palette: palettes[1] },
 	{ id: "48", name: "13.3b", width: 960, height: 680, palette: palettes[1] },
 ];
-
-export const SETTING_KEY = "setting-key";
-export const IMAGE_OPTIONS_KEY = "image-options-key";

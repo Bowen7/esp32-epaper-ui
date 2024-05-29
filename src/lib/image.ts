@@ -1,14 +1,4 @@
-export type ImageOptions = {
-	size: "original" | "contain" | "cover";
-	verticalAlign: "top" | "center" | "bottom";
-	horizontalAlign: "left" | "center" | "right";
-};
-
-export const defaultImageOptions: ImageOptions = {
-	size: "original",
-	verticalAlign: "top",
-	horizontalAlign: "left",
-};
+import type { ImageOptions } from "./atom";
 
 export const calcImageRect = (
 	imageSize: [number, number],

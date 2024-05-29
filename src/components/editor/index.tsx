@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocalStorage } from "usehooks-ts";
+import { useAtom, useAtomValue } from "jotai";
 import useDimensions from "react-cool-dimensions";
 import {
 	ArrowLeftIcon,
@@ -12,18 +12,12 @@ import {
 	AlignBottomIcon,
 } from "@radix-ui/react-icons";
 import { Gauge } from "@suyalcinkaya/gauge";
-import { SETTING_KEY, IMAGE_OPTIONS_KEY } from "@/lib/config";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { devices, type Device } from "@/lib/config";
 import { ditherImage } from "@/lib/dither";
 import { Button } from "@/components/ui/button";
 import { uploadImage } from "@/lib/upload";
-import { DEFAULT_SETTING } from "@/components/setting-toggle";
-import {
-	defaultImageOptions,
-	calcImageRect,
-	type ImageOptions,
-} from "@/lib/image";
+import { calcImageRect } from "@/lib/image";
 import {
 	Select,
 	SelectContent,
@@ -32,6 +26,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Label } from "../ui/label";
+import { settingsAtom, imageOptionsAtom, type ImageOptions } from "@/lib/atom";
 
 type Props = {
 	url: string;
@@ -57,11 +52,8 @@ export const Editor = (props: Props) => {
 	const sourceCanvasRef = useRef<HTMLCanvasElement>(null);
 	const transitCanvasRef = useRef<HTMLCanvasElement>(null);
 	const targetCanvasRef = useRef<HTMLCanvasElement>(null);
-	const [setting] = useLocalStorage(SETTING_KEY, DEFAULT_SETTING);
-	const [imageOptions, setImageOptions] = useLocalStorage<ImageOptions>(
-		IMAGE_OPTIONS_KEY,
-		defaultImageOptions,
-	);
+	const setting = useAtomValue(settingsAtom);
+	const [imageOptions, setImageOptions] = useAtom(imageOptionsAtom);
 
 	const { observe: observeSource, width: sourceContainerW } = useDimensions();
 	const { observe: observeTarget, width: targetContainerW } = useDimensions();

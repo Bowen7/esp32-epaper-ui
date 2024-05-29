@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { GearIcon, PinTopIcon } from "@radix-ui/react-icons";
 import { useForm } from "react-hook-form";
-import { useLocalStorage } from "usehooks-ts";
+import { useAtom } from "jotai";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -27,7 +27,7 @@ import {
 	FormLabel,
 } from "@/components/ui/form";
 import { devices } from "@/lib/config";
-import { SETTING_KEY } from "@/lib/config";
+import { settingsAtom } from "@/lib/atom";
 
 export type Setting = {
 	device: string;
@@ -43,7 +43,7 @@ export const DEFAULT_SETTING: Setting = {
 
 export function SettingToggle() {
 	const [open, setOpen] = useState(false);
-	const [setting, setSetting] = useLocalStorage(SETTING_KEY, DEFAULT_SETTING);
+	const [setting, setSetting] = useAtom(settingsAtom);
 
 	const form = useForm<Setting>({
 		defaultValues: setting,
