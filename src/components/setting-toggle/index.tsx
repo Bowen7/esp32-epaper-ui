@@ -35,13 +35,15 @@ export type Setting = {
 	direction: string;
 };
 
+export const DEFAULT_SETTING: Setting = {
+	device: "0",
+	deviceIP: "",
+	direction: "0",
+};
+
 export function SettingToggle() {
 	const [open, setOpen] = useState(false);
-	const [setting, setSetting] = useLocalStorage(SETTING_KEY, {
-		device: "0",
-		deviceIP: "",
-		direction: "0",
-	});
+	const [setting, setSetting] = useLocalStorage(SETTING_KEY, DEFAULT_SETTING);
 
 	const form = useForm<Setting>({
 		defaultValues: setting,

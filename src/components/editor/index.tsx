@@ -1,17 +1,37 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocalStorage } from "usehooks-ts";
 import useDimensions from "react-cool-dimensions";
-import { ArrowLeftIcon, UploadIcon } from "@radix-ui/react-icons";
-import { SETTING_KEY } from "@/lib/config";
+import {
+	ArrowLeftIcon,
+	UploadIcon,
+	AlignCenterHorizontallyIcon,
+	AlignLeftIcon,
+	AlignRightIcon,
+	AlignCenterVerticallyIcon,
+	AlignTopIcon,
+	AlignBottomIcon,
+} from "@radix-ui/react-icons";
+import { Gauge } from "@suyalcinkaya/gauge";
+import { SETTING_KEY, IMAGE_OPTIONS_KEY } from "@/lib/config";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { devices, type Device } from "@/lib/config";
 import { ditherImage } from "@/lib/dither";
 import { Button } from "@/components/ui/button";
 import { uploadImage } from "@/lib/upload";
+import { DEFAULT_SETTING } from "@/components/setting-toggle";
 import {
 	defaultImageOptions,
 	calcImageRect,
 	type ImageOptions,
 } from "@/lib/image";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { Label } from "../ui/label";
 
 type Props = {
 	url: string;
@@ -28,12 +48,6 @@ const getSize = (device: Device, direction: number): [number, number] => {
 	}
 };
 
-const options: ImageOptions = {
-	size: "cover",
-	verticalAlign: "center",
-	horizontalAlign: "center",
-};
-
 export const Editor = (props: Props) => {
 	const { url, onBack } = props;
 	const [imageSize, setImageSize] = useState<[number, number]>([0, 0]);
@@ -43,11 +57,11 @@ export const Editor = (props: Props) => {
 	const sourceCanvasRef = useRef<HTMLCanvasElement>(null);
 	const transitCanvasRef = useRef<HTMLCanvasElement>(null);
 	const targetCanvasRef = useRef<HTMLCanvasElement>(null);
-	const [setting] = useLocalStorage(SETTING_KEY, {
-		device: "0",
-		deviceIP: "",
-		direction: "0",
-	});
+	const [setting] = useLocalStorage(SETTING_KEY, DEFAULT_SETTING);
+	const [imageOptions, setImageOptions] = useLocalStorage<ImageOptions>(
+		IMAGE_OPTIONS_KEY,
+		defaultImageOptions,
+	);
 
 	const { observe: observeSource, width: sourceContainerW } = useDimensions();
 	const { observe: observeTarget, width: targetContainerW } = useDimensions();
@@ -60,6 +74,13 @@ export const Editor = (props: Props) => {
 		imageSize[1] * sourceContainerScale,
 		height * targetContainerScale,
 	);
+
+	const onImageOptionsChange = (key: keyof ImageOptions, value: string) => {
+		setImageOptions((prev) => ({
+			...prev,
+			[key]: value as ImageOptions[typeof key],
+		}));
+	};
 
 	useEffect(() => {
 		if (sourceContainerW < imageSize[0]) {
@@ -103,13 +124,12 @@ export const Editor = (props: Props) => {
 		img.onload = () => {
 			context.drawImage(img, 0, 0, imageSize[0], imageSize[1]);
 			const transitContext = transitCanvasRef.current!.getContext("2d");
-			const rect = calcImageRect(imageSize, [width, height], options);
-			console.log(imageSize, [width, height], rect);
+			const rect = calcImageRect(imageSize, [width, height], imageOptions);
 			transitContext!.clearRect(0, 0, width, height);
 			transitContext!.drawImage(img, rect.x, rect.y, rect.width, rect.height);
 			setTransitUrl(transitCanvasRef.current!.toDataURL());
 		};
-	}, [imageSize, url, width, height]);
+	}, [imageSize, url, width, height, imageOptions]);
 
 	useEffect(() => {
 		if (!transitUrl) {
@@ -160,13 +180,72 @@ export const Editor = (props: Props) => {
 					/>
 				</div>
 			</div>
+			<div className="flex space-x-8 mt-8">
+				<div className="flex flex-col items-start space-y-2">
+					<Label>Image Size</Label>
+					<Select
+						onValueChange={(value) => onImageOptionsChange("size", value)}
+						defaultValue={imageOptions.size}
+					>
+						<SelectTrigger className="w-[120px]">
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="original">Original</SelectItem>
+							<SelectItem value="contain">Contain</SelectItem>
+							<SelectItem value="cover">Cover</SelectItem>
+						</SelectContent>
+					</Select>
+				</div>
+				<div className="flex flex-col items-start space-y-2">
+					<Label>Horizontal Align</Label>
+					<ToggleGroup
+						type="single"
+						value={imageOptions.horizontalAlign}
+						onValueChange={(value) =>
+							onImageOptionsChange("horizontalAlign", value)
+						}
+					>
+						<ToggleGroupItem value="left">
+							<AlignLeftIcon />
+						</ToggleGroupItem>
+						<ToggleGroupItem value="center">
+							<AlignCenterHorizontallyIcon />
+						</ToggleGroupItem>
+						<ToggleGroupItem value="right">
+							<AlignRightIcon />
+						</ToggleGroupItem>
+					</ToggleGroup>
+				</div>
+				<div className="flex flex-col items-start space-y-2">
+					<Label>Vertical Align</Label>
+					<ToggleGroup
+						type="single"
+						value={imageOptions.verticalAlign}
+						onValueChange={(value) =>
+							onImageOptionsChange("verticalAlign", value)
+						}
+					>
+						<ToggleGroupItem value="top">
+							<AlignTopIcon />
+						</ToggleGroupItem>
+						<ToggleGroupItem value="center">
+							<AlignCenterVerticallyIcon />
+						</ToggleGroupItem>
+						<ToggleGroupItem value="bottom">
+							<AlignBottomIcon />
+						</ToggleGroupItem>
+					</ToggleGroup>
+				</div>
+			</div>
 			<div className="mt-8 flex justify-end space-x-4">
 				<Button onClick={onBack} variant="outline">
 					<ArrowLeftIcon />
 					Back
 				</Button>
 				<Button disabled={!deviceIP} onClick={onUpload}>
-					<UploadIcon />
+					{/* <UploadIcon /> */}
+					<Gauge value={100} size={"xm"} className="mr-2" />
 					Upload
 				</Button>
 			</div>

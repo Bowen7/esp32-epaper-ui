@@ -117,3 +117,4 @@ export const devices: Device[] = [
 ];
 
 export const SETTING_KEY = "setting-key";
+export const IMAGE_OPTIONS_KEY = "image-options-key";
