@@ -91,12 +91,7 @@ export const Editor = (props: Props) => {
 	}, [targetContainerW, width]);
 
 	const onUpload = () => {
-		uploadImage(
-			targetCanvasRef.current!,
-			Number(device.id),
-			deviceIP,
-			Number(direction),
-		);
+		uploadImage(targetCanvasRef.current!, () => {});
 	};
 
 	useEffect(() => {
