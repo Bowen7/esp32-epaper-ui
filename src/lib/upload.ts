@@ -10,14 +10,6 @@ function wordToStr(v: number) {
 	return byteToStr(v & 0xff) + byteToStr((v >> 8) & 0xff);
 }
 
-const request = (cmd: string) => {
-	const deviceIP = store.get(settingsAtom).deviceIP;
-	const baseURL = `http://${deviceIP}/`;
-	return fetch(baseURL + cmd, {
-		method: "POST",
-	});
-};
-
 export const uploadImage = async (
 	canvas: HTMLCanvasElement,
 	callback: (progress: number) => void,
@@ -26,7 +18,19 @@ export const uploadImage = async (
 	const deviceId = Number(device);
 	const pixels = getPixels(canvas, deviceId, Number(direction));
 	let pixelIndex = 0;
+	let progress = 0;
+	let basePixelIndex = 0;
+	let pixelNum = pixels.length;
 
+	const request = async (cmd: string) => {
+		const deviceIP = store.get(settingsAtom).deviceIP;
+		const baseURL = `http://${deviceIP}/`;
+		await fetch(baseURL + cmd, {
+			method: "POST",
+		});
+		progress = Math.floor(((pixelIndex + basePixelIndex) / pixelNum) * 100);
+		callback(progress);
+	};
 	const sendNext = () => {
 		pixelIndex = 0;
 		return request("NEXT_");
@@ -41,8 +45,11 @@ export const uploadImage = async (
 			x = 0;
 			while (x < 122) {
 				let v = 0;
-				for (let i = 0; i < 8 && x < 122; i++, x++)
-					if (Number(pixels[pixelIndex++]) !== color) v |= 128 >> i;
+				for (let i = 0; i < 8 && x < 122; i++, x++) {
+					if (Number(pixels[pixelIndex++]) !== color) {
+						v |= 128 >> i;
+					}
+				}
 				msg += byteToStr(v);
 			}
 		}
@@ -72,9 +79,11 @@ export const uploadImage = async (
 			} else {
 				while (pixelIndex < pixels.length && msg.length < MAX_MSG_LEN) {
 					let v = 0;
-					for (let i = 0; i < 8; i++)
-						if (pixelIndex < pixels.length && pixels[pixelIndex++] !== color)
+					for (let i = 0; i < 8; i++) {
+						if (pixelIndex < pixels.length && pixels[pixelIndex++] !== color) {
 							v |= 128 >> i;
+						}
+					}
 					msg += byteToStr(v);
 				}
 			}
@@ -88,29 +97,28 @@ export const uploadImage = async (
 	}
 	if (deviceId === 3 || deviceId === 39 || deviceId === 43) {
 		await sendLine(0);
-		await sendShow();
 	} else if (deviceId === 40) {
+		pixelNum *= 2;
 		await sendLine(0);
 		await sendNext();
+		basePixelIndex = pixels.length;
 		await sendLine(3);
-		await sendShow();
 	} else if ([0, 3, 6, 7, 9, 12, 16, 19, 22, 26, 27, 28].includes(deviceId)) {
 		await sendData(0);
-		await sendShow();
 	} else if (deviceId > 15 && deviceId < 22) {
 		await sendData(-1);
-		await sendShow();
 	} else if (deviceId === 25 || deviceId === 37) {
 		await sendData(-2);
-		sendShow();
 	} else {
+		pixelNum *= 2;
 		if (deviceId === 23) {
 			await sendData(0);
 		} else {
 			await sendData(deviceId === 1 || deviceId === 12 ? -1 : 0);
 		}
 		await sendNext();
+		basePixelIndex = pixels.length;
 		await sendData(3);
-		await sendShow();
 	}
+	await sendShow();
 };

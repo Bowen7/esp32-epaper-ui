@@ -49,6 +49,8 @@ export const Editor = (props: Props) => {
 	const [transitUrl, setTransitUrl] = useState("");
 	const [sourceContainerScale, setSourceContainerScale] = useState(1);
 	const [targetContainerScale, setTargetContainerScale] = useState(1);
+	const [progress, setProgress] = useState(0);
+	const [loading, setLoading] = useState(false);
 	const sourceCanvasRef = useRef<HTMLCanvasElement>(null);
 	const transitCanvasRef = useRef<HTMLCanvasElement>(null);
 	const targetCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -90,8 +92,13 @@ export const Editor = (props: Props) => {
 		}
 	}, [targetContainerW, width]);
 
-	const onUpload = () => {
-		uploadImage(targetCanvasRef.current!, () => {});
+	const onUpload = async () => {
+		setProgress(0);
+		setLoading(true);
+		await uploadImage(targetCanvasRef.current!, (progress: number) => {
+			setProgress(progress);
+		});
+		setLoading(false);
 	};
 
 	useEffect(() => {
@@ -227,12 +234,15 @@ export const Editor = (props: Props) => {
 			</div>
 			<div className="mt-8 flex justify-end space-x-4">
 				<Button onClick={onBack} variant="outline">
-					<ArrowLeftIcon />
+					<ArrowLeftIcon className="mr-2" />
 					Back
 				</Button>
-				<Button disabled={!deviceIP} onClick={onUpload}>
-					{/* <UploadIcon /> */}
-					<Gauge value={100} size={"xm"} className="mr-2" />
+				<Button disabled={!deviceIP || loading} onClick={onUpload}>
+					{loading ? (
+						<Gauge value={progress} size={"xm"} className="mr-2" />
+					) : (
+						<UploadIcon className="mr-2" />
+					)}
 					Upload
 				</Button>
 			</div>
