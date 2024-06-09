@@ -7,10 +7,7 @@ import { UploadFile } from "./components/upload-file";
 import { Editor } from "./components/editor";
 
 function App() {
-	const [url, setUrl] = useState(
-		"https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f1ec-1f1e7.svg",
-	);
-	// const [url, setUrl] = useState("");
+	const [url, setUrl] = useState("");
 	return (
 		<main className="h-screen flex flex-col items-center">
 			<header className="h-14 w-full border-b border-border/40 flex items-center px-8 gap-x-4 justify-end">
